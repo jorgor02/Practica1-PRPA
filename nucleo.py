@@ -14,7 +14,14 @@ class Nucleo(Thread):
         self.continuar = True
 
     def run(self) -> None:
+        while self.continuar:
+            self.barrier.wait()
 
-        kernel_func = KERNELS[self.gpu_mem.kernel.value]
-        kernel_func(self.core_id, self.gpu_mem, self.sm_mem, self.barrier)
+            if not self.continuar:
+                break
+            kernel_func = KERNELS[self.gpu_mem.kernel.value]
+
+            kernel_func(self.core_id, self.gpu_mem, self.sm_mem, self.barrier)
+
+            self.barrier.wait()
 
