@@ -1,10 +1,11 @@
-from multiprocessing import Process
+from multiprocessing import Process, Queue
 from threading import Barrier
+from gpu_memory import GPUMemory
 from sm_memory import SMMemory
 from nucleo import Nucleo
 
 class SM(Process):
-    def __init__(self, cant_nucleos, gpu_mem, tam_mem_sm, q_bloques) -> None:
+    def __init__(self, cant_nucleos: int, gpu_mem: GPUMemory, tam_mem_sm: int, q_bloques: Queue) -> None:
         super().__init__()
         self.cant_nucleos = cant_nucleos
         self.gpu_mem = gpu_mem
