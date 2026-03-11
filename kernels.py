@@ -9,6 +9,9 @@ DIFUMINAR = 3
 ESCALAR = 4
 
 
+"""
+PREGUNTAR SI LAS FUNCIONES MENOS DIFUMINAR PORQUE COPAIN DIRECTAMENTE A LA MEMORIA GLOBAL Y NO PRIMERO A SM_MEMORY
+"""
 
 def incr(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, _: Barrier) -> None:
        # Precondición: se asume core_id >= 0, y que las memorias están inicializadas.
