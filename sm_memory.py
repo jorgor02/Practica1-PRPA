@@ -3,6 +3,7 @@
 
 class SMMemory:
     def __init__(self, tam: int) -> None:
+       # Precondición: se asume que tam >= 0.
         self.datos = [0.0] * tam
         self.ini_bloque = 0
         self.tam_bloque = 0
