@@ -7,10 +7,13 @@ from multiprocessing import Array, Value
 
 class GPUMemory:
     def __init__(self, tam_max: int) -> None:
-        # Precondición: se asume que tam_max >= 0.
         self.tam_max = Value('i', tam_max)
         self.dato1 = Array('f', tam_max)
         self.dato2 = Array('f', tam_max)
         self.res = Array('f', tam_max)
         self.tam_datos = Value('i', 0)
         self.kernel = Value('i', 0)
+        # Para trabajar con matrices
+        self.filas = Value('i', 0)
+        self.columnas = Value('i', 0)
+
