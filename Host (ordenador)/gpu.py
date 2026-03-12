@@ -1,4 +1,6 @@
 from multiprocessing import Queue
+
+from kernels import DIFUMINAR_MAT
 from sm import SM
 from gpu_memory import GPUMemory
 
@@ -14,7 +16,7 @@ class GPU:
         self.tam_mem_gpu = tam_mem_gpu
         self.tam_mem_sm = tam_mem_sm
 
-    def ejecutar_trabajo_en_gpu(self, kernel_tipo: int, vector1: list, vector2: list = None) -> list:
+    def ejecutar_trabajo_en_gpu(self, kernel_tipo: int, vector1: list, vector2: list = None, filas: int = None, columnas: int = None) -> list:
 
         mem_gpu = GPUMemory(self.tam_mem_gpu)
         q_bloques = Queue()
@@ -29,7 +31,11 @@ class GPU:
         if vector2 is not None:
             mem_gpu.dato2[:tam_datos] = vector2
 
-        
+        if mem_gpu.kernel.value == DIFUMINAR_MAT :
+            mem_gpu.filas.value = filas
+            mem_gpu.columnas.value = columnas
+
+
         # Arrancamos los SMs (procesos)
         sms = [SM(self.nucleos_por_sm, mem_gpu, self.tam_mem_sm, q_bloques) for _ in range(self.cant_sms)]
         for s in sms:

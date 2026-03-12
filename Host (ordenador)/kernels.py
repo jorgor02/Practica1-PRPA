@@ -7,6 +7,7 @@ INCR = 1
 SUMAR = 2
 DIFUMINAR = 3
 ESCALAR = 4
+DIFUMINAR_MAT = 5
 
 
 """
@@ -38,7 +39,8 @@ def escalar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, _: Barrier) -> N
         idx = sm_mem.ini_bloque + core_id
         gpu_mem.res[idx] = gpu_mem.dato1[idx] * gpu_mem.dato2[idx]
 
-""" PREGUNTAR POR ESCALAR SI LA SUMA SE HACE EN LA GPU O EN PARALELO
+"""
+ PREGUNTAR POR ESCALAR SI LA SUMA SE HACE EN LA GPU O EN PARALELO
 """
 
 def difuminar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera : Barrier) -> None:
@@ -78,9 +80,45 @@ def difuminar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera : Barr
 
 
 
+def difuminar_mat(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera: Barrier) -> None:
+
+    if core_id < sm_mem.tam_bloque:
+        idx_global = sm_mem.ini_bloque + core_id
+        sm_mem.datos[core_id] = gpu_mem.dato1[idx_global]
+
+    barrera.wait()
+
+    if core_id < sm_mem.tam_bloque:
+        idx_global = sm_mem.ini_bloque + core_id
+        suma = 0.0
+        contador = 0
+
+        # Recorremos vecinos 3x3:
+        for i in (-1, 0, 1):
+            for j in (-1, 0, 1):
+                # Calculamos en que fila y columna estamos:
+                fila = idx_global // gpu_mem.columnas.value + i
+                col = idx_global % gpu_mem.columnas.value + j
+
+                # Calculamos el índice de cada vecino
+                if 0 <= fila < gpu_mem.filas.value and 0 <= col < gpu_mem.columnas.value:
+                    vecino_idx = fila * gpu_mem.columnas.value + col
+
+                    #Comprobamos si el vecino pertenece a la matriz y contamos cuantos hay (importante en los bordes)
+                    if 0 <= vecino_idx < gpu_mem.tam_datos.value:
+                        suma += gpu_mem.dato1[vecino_idx]
+                        contador += 1
+
+        if contador > 0:
+            gpu_mem.res[idx_global] = suma / contador
+
+
+
 KERNELS = {
     INCR: incr,
     SUMAR: sumar,
     DIFUMINAR: difuminar,
     ESCALAR: escalar,
+    DIFUMINAR_MAT: difuminar_mat
+
 }

@@ -1,9 +1,11 @@
 from multiprocessing import Process, Queue
 from threading import Barrier
-from gpu import CENTINELA
 from gpu_memory import GPUMemory
 from sm_memory import SMMemory
 from nucleo import Nucleo
+
+
+CENTINELA = None
 
 
 class SM(Process):
