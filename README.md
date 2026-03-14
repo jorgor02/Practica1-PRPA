@@ -7,3 +7,6 @@ TAREAS PENDIENTES
 4. (OPCIONAL) Ver si la clase GPU funciona mejor como Process(CREEMOS QU8E NO, OSCAR DIJO QUE ESTABA BIEN ASI)
 5. 
 (HECHO) Funcion DIFUMINAR MATRICES hacerla en la memoria local y luego pasarla a la global
+
+
+ARREGLAR ALGUNOS COMENTARIOS
