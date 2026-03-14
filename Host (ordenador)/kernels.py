@@ -2,7 +2,6 @@ from gpu_memory import GPUMemory
 from sm_memory import SMMemory
 from threading import Barrier
 
-
 INCR = 1
 SUMAR = 2
 DIFUMINAR = 3
@@ -10,23 +9,18 @@ ESCALAR = 4
 DIFUMINAR_MAT = 5
 
 
-
-"""
-PREGUNTAR SI LAS FUNCIONES MENOS DIFUMINAR PORQUE COPAIN DIRECTAMENTE A LA MEMORIA GLOBAL Y NO PRIMERO A SM_MEMORY
-"""
-
 def incr(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, _: Barrier) -> None:
-       # Precondición: se asume core_id >= 0, y que las memorias están inicializadas.
-       if core_id < sm_mem.tam_bloque: 
-       # Esta comprobación es por si el ultimo bloque  tiene un número menor
-       # de elementos que los anteriores, para evitar que los núcleos sobrantes
-       # accedan a memoria fuera de rango
-
+    # Precondición: se asume core_id >= 0 y que las memorias están inicializadas.
+    if core_id < sm_mem.tam_bloque:
+        # Esta comprobación es por si el último bloque tiene un número menor
+        # de elementos que los anteriores, para evitar que los núcleos sobrantes
+        # accedan a memoria fuera de rango
         idx = sm_mem.ini_bloque + core_id
         gpu_mem.res[idx] = gpu_mem.dato1[idx] + 1
 
-def sumar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, _: Barrier)-> None:
-    # Precondición: se asume que core_id >= 0, y que las memorias están inicializadas.
+
+def sumar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, _: Barrier) -> None:
+    # Precondición: se asume que core_id >= 0 y que las memorias están inicializadas.
     # gpu_mem.dato1 y dato2 deben tener el mismo tamaño.
     if core_id < sm_mem.tam_bloque:
         idx = sm_mem.ini_bloque + core_id
@@ -34,31 +28,28 @@ def sumar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, _: Barrier)-> None
 
 
 def escalar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, _: Barrier) -> None:
-    # Precondición: se asume que core_id >= 0, y que las memorias están inicializadas.
+    # Precondición: se asume que core_id >= 0 y que las memorias están inicializadas.
     # gpu_mem.dato1 y dato2 deben tener el mismo tamaño.
     if core_id < sm_mem.tam_bloque:
         idx = sm_mem.ini_bloque + core_id
         gpu_mem.res[idx] = gpu_mem.dato1[idx] * gpu_mem.dato2[idx]
 
-"""
- PREGUNTAR POR ESCALAR SI LA SUMA SE HACE EN LA GPU O EN PARALELO
-"""
 
-def difuminar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera : Barrier) -> None:
-    # Precondición: se asume que core_id >= 0, y que las memorias están inicializadas.
+def difuminar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera: Barrier) -> None:
+    # Precondición: se asume que core_id >= 0 y que las memorias están inicializadas.
     # gpu_mem.dato1 y dato2 deben tener el mismo tamaño.
     # Además la barrera debe estar inicializada con el total de núcleos del SM.
-    
-    #Copiamos el bloque de datos de la memoria global a la memoria compartida del SM
+
+    # Copiamos el bloque de datos de la memoria global a la memoria compartida del SM
     if core_id < sm_mem.tam_bloque:
         idx_global = sm_mem.ini_bloque + core_id
         sm_mem.datos[core_id] = gpu_mem.dato1[idx_global]
 
-    #Esperamos a que todos los núcleos hayan copiado su dato a la memoria compartida
-    # para coninuar con los cálculos del difuminado, ya que cada núcleo necesita 
+    # Esperamos a que todos los núcleos hayan copiado su dato a la memoria compartida
+    # para continuar con los cálculos del difuminado, ya que cada núcleo necesita
     # acceder a los datos de sus vecinos
     barrera.wait()
-    
+
     if core_id < sm_mem.tam_bloque:
         idx_global = sm_mem.ini_bloque + core_id
         suma = 0.0
@@ -82,9 +73,8 @@ def difuminar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera : Barr
         gpu_mem.res[idx_global] = suma / contador
 
 
-
 def difuminar_mat(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera: Barrier) -> None:
-
+    # Precondición: se asume que core_id >= 0 y que las memorias están inicializadas.
     if core_id < sm_mem.tam_bloque:
         idx_global = sm_mem.ini_bloque + core_id
         sm_mem.datos[core_id] = gpu_mem.dato1[idx_global]
@@ -108,7 +98,7 @@ def difuminar_mat(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera: B
                 if 0 <= fila < gpu_mem.filas.value and 0 <= col < gpu_mem.columnas.value:
                     vecino_idx = fila * gpu_mem.columnas.value + col
 
-                    #Comprobamos si el vecino pertenece a la matriz y contamos cuantos hay (importante en los bordes)
+                    # Comprobamos si el vecino pertenece a la matriz y contamos cuantos hay (importante en los bordes)
                     if 0 <= vecino_idx < gpu_mem.tam_datos.value:
                         idx_relativo = vecino_idx - sm_mem.ini_bloque
                         # Si el vecino está dentro de nuestro bloque cargado, leemos de la memoria de SM
@@ -116,12 +106,11 @@ def difuminar_mat(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera: B
                             suma += sm_mem.datos[idx_relativo]
                         # Si el vecino pertenece a otro bloque, toca ir a la memoria global (lento)
                         else:
-                            suma += gpu_mem.dato1[vecino_idx] # pyright: ignore[reportOperatorIssue]
+                            suma += gpu_mem.dato1[vecino_idx]  # pyright: ignore[reportOperatorIssue]
                         contador += 1
 
         if contador > 0:
             gpu_mem.res[idx_global] = suma / contador
-
 
 
 KERNELS = {
@@ -130,5 +119,4 @@ KERNELS = {
     DIFUMINAR: difuminar,
     ESCALAR: escalar,
     DIFUMINAR_MAT: difuminar_mat
-
 }
