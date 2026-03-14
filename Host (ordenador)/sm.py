@@ -29,14 +29,11 @@ class SM(Process):
         # para sincronizar a los núcleos después de cada paso del kernel.
         barrera_kernel = Barrier(self.cant_nucleos)
 
-        nucleos = [
-                Nucleo(i, self.gpu_mem, sm_mem, barrera_ini, barrera_fin, barrera_kernel)
-                for i in range(self.cant_nucleos)
-            ]
+        nucleos = [Nucleo(i, self.gpu_mem, sm_mem, barrera_ini, barrera_fin, barrera_kernel)
+                for i in range(self.cant_nucleos)]
 
         for n in nucleos:
             n.start()
-
 
         bloque = self.q_bloques.get()
         # Consumimos bloques de la cola hasta recibir la 
@@ -54,7 +51,6 @@ class SM(Process):
             # Esperamos a que todos terminen
             barrera_fin.wait()
             
-            
             # Avisamos al Host de que este bloque ha concluido
             self.q_completados.put(True)
     
@@ -65,4 +61,4 @@ class SM(Process):
         barrera_ini.wait()
 
         for n in nucleos:
-                        n.join()
+            n.join()
