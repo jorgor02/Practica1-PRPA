@@ -5,4 +5,4 @@ TAREAS PENDIENTES
 2. La suma del producto escalar en paralelo
 3. elegir radio de difuminacion
 4. (OPCIONAL) Ver si la clase GPU funciona mejor como Process(CREEMOS QU8E NO, OSCAR DIJO QUE ESTABA BIEN ASI)
-5. Funcion DIFUMINAR MATRICES hacerla en la memoria local y luego pasarla a la global
+(HECHO) 5. Funcion DIFUMINAR MATRICES hacerla en la memoria local y luego pasarla a la global
