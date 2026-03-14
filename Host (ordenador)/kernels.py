@@ -106,7 +106,13 @@ def difuminar_mat(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera: B
 
                     #Comprobamos si el vecino pertenece a la matriz y contamos cuantos hay (importante en los bordes)
                     if 0 <= vecino_idx < gpu_mem.tam_datos.value:
-                        suma += gpu_mem.dato1[vecino_idx]
+                        idx_relativo = vecino_idx - sm_mem.ini_bloque
+                        # Si el vecino está dentro de nuestro bloque cargado, leemos de la memoria de SM
+                        if 0 <= idx_relativo < sm_mem.tam_bloque:
+                            suma += sm_mem.datos[idx_relativo]
+                        # Si el vecino pertenece a otro bloque, toca ir a la memoria global (lento)
+                        else:
+                            suma += gpu_mem.dato1[vecino_idx]
                         contador += 1
 
         if contador > 0:
