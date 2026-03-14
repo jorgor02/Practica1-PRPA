@@ -7,3 +7,6 @@ class SMMemory:
         self.datos = [0.0] * tam
         self.ini_bloque = 0
         self.tam_bloque = 0
+
+        # Indica a los núcleos cuándo deben apagarse
+        self.terminar = False

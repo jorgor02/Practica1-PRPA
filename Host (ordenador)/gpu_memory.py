@@ -18,4 +18,5 @@ class GPUMemory:
         self.filas = Value('i', 0)
         self.columnas = Value('i', 0)
 
-
+        # Espacio para guardar el radio de difuminado
+        self.radio = Value('i', 1)

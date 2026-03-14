@@ -10,6 +10,7 @@ ESCALAR = 4
 DIFUMINAR_MAT = 5
 
 
+
 """
 PREGUNTAR SI LAS FUNCIONES MENOS DIFUMINAR PORQUE COPAIN DIRECTAMENTE A LA MEMORIA GLOBAL Y NO PRIMERO A SM_MEMORY
 """
@@ -62,7 +63,9 @@ def difuminar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera : Barr
         idx_global = sm_mem.ini_bloque + core_id
         suma = 0.0
         contador = 0
-        for rango in range(-2, 3):
+        radio = gpu_mem.radio.value
+
+        for rango in range(-radio, radio + 1):
             idx_relativo = core_id + rango
 
             # Si el vecino está en el mismo bloque, leemos rápidamente de la memoria local
@@ -92,10 +95,11 @@ def difuminar_mat(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera: B
         idx_global = sm_mem.ini_bloque + core_id
         suma = 0.0
         contador = 0
+        radio = gpu_mem.radio.value
 
         # Recorremos vecinos 3x3:
-        for i in (-1, 0, 1):
-            for j in (-1, 0, 1):
+        for i in range(-radio, radio + 1):
+            for j in range(-radio, radio + 1):
                 # Calculamos en que fila y columna estamos:
                 fila = idx_global // gpu_mem.columnas.value + i
                 col = idx_global % gpu_mem.columnas.value + j
@@ -112,7 +116,7 @@ def difuminar_mat(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera: B
                             suma += sm_mem.datos[idx_relativo]
                         # Si el vecino pertenece a otro bloque, toca ir a la memoria global (lento)
                         else:
-                            suma += gpu_mem.dato1[vecino_idx]
+                            suma += gpu_mem.dato1[vecino_idx] # pyright: ignore[reportOperatorIssue]
                         contador += 1
 
         if contador > 0:
