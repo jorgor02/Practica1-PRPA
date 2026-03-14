@@ -1,12 +1,8 @@
 from multiprocessing import Queue
-
 from kernels import DIFUMINAR_MAT
 from sm import SM
 from gpu_memory import GPUMemory
 
-"""
-PREGUNTAR SI LA CLASE GPU TIENE QUE SER TAMBIEN PROCESS 
-"""
 CENTINELA = None
 
 class GPU:
@@ -22,8 +18,7 @@ class GPU:
 
         # Arrancamos los SMs (procesos)
         self.sms = [SM(self.nucleos_por_sm, self.mem_gpu, self.tam_mem_sm, self.q_bloques, self.q_completados)
-                     for _ in range(self.cant_sms)
-                     ]
+                     for _ in range(self.cant_sms)]
         for s in self.sms:
             s.start()
 
@@ -43,17 +38,16 @@ class GPU:
         self.mem_gpu.tam_datos.value = tam_datos
         self.mem_gpu.radio.value = radio
 
-
         # El Host copia los datos a la memoria de la GPU
         self.mem_gpu.dato1[:tam_datos] = vector1
         if vector2 is not None:
             self.mem_gpu.dato2[:tam_datos] = vector2
-
+            
         if self.mem_gpu.kernel.value == DIFUMINAR_MAT :
             self.mem_gpu.filas.value = filas
             self.mem_gpu.columnas.value = columnas
-        
 
+        
         # El ordenador divide el trabajo en bloques y los encola.
         num_bloques = 0
         for block_start in range(0, tam_datos, self.nucleos_por_sm):
