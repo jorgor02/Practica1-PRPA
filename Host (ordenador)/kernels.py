@@ -32,7 +32,11 @@ def escalar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, _: Barrier) -> N
     # gpu_mem.dato1 y dato2 deben tener el mismo tamaño.
     if core_id < sm_mem.tam_bloque:
         idx = sm_mem.ini_bloque + core_id
-        gpu_mem.res[idx] = gpu_mem.dato1[idx] * gpu_mem.dato2[idx]
+        producto = gpu_mem.dato1[idx] * gpu_mem.dato2[idx]
+
+        # Acumulamos el resultado de forma atómica
+        with gpu_mem.res_escalar.get_lock(): # Evitamos condiciones de carrera
+            gpu_mem.res_escalar.value += producto
 
 
 def difuminar(core_id: int, gpu_mem: GPUMemory, sm_mem: SMMemory, barrera: Barrier) -> None:
