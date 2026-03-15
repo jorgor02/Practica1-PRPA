@@ -33,10 +33,9 @@ if __name__ == '__main__':
     print('rdo esperado: [3.5, 3.5, 3.5, 3.5, 3.5, ...]\n')
     
     # PRODUCTO ESCALAR
-    res_escalar_parcial = ordenador.ejecutar_trabajo_en_gpu(ESCALAR, vec_a, vec_b)
-    # El host hace la reducción (suma final) de los resultados parciales de la GPU
-    suma_final = sum(res_escalar_parcial)
-    print(f'producto escalar   : {suma_final}')
+    ordenador.ejecutar_trabajo_en_gpu(ESCALAR, vec_a, vec_b)
+    res_escalar = ordenador.mem_gpu.res_escalar.value # Obtenemos el resultado de gpu_mem
+    print(f'producto escalar   : {res_escalar}')
     print('rdo esperado       : 1252.5 (porque 1.0*2.5*501 = 1252.5)\n')
         
     # DIFUMINAR
