@@ -14,6 +14,10 @@ class GPUMemory:
         self.res = Array('d', tam_max)
         self.tam_datos = Value('i', 0)
         self.kernel = Value('i', 0)
+
+        # Para acumular la suma del producto escalar
+        self.res_escalar = Value('d', 0.0)
+
         # Para trabajar con matrices
         self.filas = Value('i', 0)
         self.columnas = Value('i', 0)
